@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <fstream>
+using namespace std;
+
+
+class Transport {
+protected:
+    string name;
+public:
+    Transport(string n) : name(n) {}
+    virtual double calculateFare(double distance) = 0;
+    virtual void display() = 0;
+    virtual ~Transport() {}
+};
+class Metro : public Transport {
+public:
+    Metro() : Transport("Metro") {}
+    double calculateFare(double distance) override {
+        return 10 + distance * 2; // base fare + per km
+    }
+    void display() override {
+        cout << "Metro Transport Selected\n";
+    }
+};
+class Bus : public Transport {
+public:
+    Bus() : Transport("Bus") {}
+    double calculateFare(double distance) override {
+        return 5 + distance * 1.5;
+    }
+    void display() override {
+        cout << "Bus Transport Selected\n";
+    }
+};
+class Taxi : public Transport {
+public:
+    Taxi() : Transport("Taxi") {}
+    double calculateFare(double distance) override {
+        return 20 + distance * 5;
+    }
+    void display() override {
+        cout << "Taxi Transport Selected\n";
+    }
+    
+};
+void saveToFile(string mode, double distance, double fare) {
+    ofstream file("transport_log.txt", ios::app);
+    file << mode << " | Distance: " << distance
+         << " km | Fare: ₹" << fare << endl;
+    file.close();
+}
+int main() {
+    int choice;
+    double distance;
+    Transport* transport = nullptr;
+
+    cout << "\nSMART CITY TRANSPORT SYSTEM\n";
+    cout << "1. Metro\n2. Bus\n3. Taxi\nEnter choice: ";
+    cin >> choice;
+
+    cout << "Enter distance (km): ";
+    cin >> distance;
+
+    switch (choice) {
+        case 1: transport = new Metro(); break;
+        case 2: transport = new Bus(); break;
+        case 3: transport = new Taxi(); break;
+        default:
+            cout << "Invalid choice\n";
+            return 0;
+    }
+
+    transport->display();
+    double fare = transport->calculateFare(distance);
+    cout << "Total Fare: ₹" << fare << endl;
+
+    saveToFile(typeid(*transport).name(), distance, fare);
+
+    delete transport;
+    return 0;
+}
